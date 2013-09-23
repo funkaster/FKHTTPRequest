@@ -42,7 +42,7 @@
 }
 
 - (void)setValue:(NSString *)value forHeader:(NSString *)header {
-	[_request setValue:value forKey:header];
+	[_request setValue:value forHTTPHeaderField:header];
 }
 
 - (void)sendWithCompletion:(void (^)(int status, id response, NSError* error))completion {
@@ -57,7 +57,7 @@
 		}];
 		NSString* rawData = [values componentsJoinedByString:@"&"];
 		_request.HTTPBody = [NSData dataWithBytes:[rawData UTF8String] length:[rawData length]];
-		[_request setValue:@"application/x-www-form-urlencoded" forKey:@"content-type"];
+		[_request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"content-type"];
 	}
 	_request.HTTPMethod = _method;
 	if (completion) {
@@ -108,6 +108,7 @@
 
 + (FKHTTPRequest*)requestWithURL:(NSURL *)url postData:(NSDictionary *)postData completion:(void (^)(int, id, NSError *))completion {
 	FKHTTPRequest* req = [[FKHTTPRequest alloc] initWithURL:url];
+	req.postData = postData;
 	req.method = (postData ? @"POST" : @"GET");
 	[req sendWithCompletion:completion];
 	return req;
