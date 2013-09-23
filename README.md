@@ -27,6 +27,13 @@ if (req.status == 200) {
 	    // it's a valid json response, otherwise, we can use req.response, which is NSData
 	}
 }
+
+// sending json requets
+FKHTTPRequest* req = [[FKHTTPRequest alloc] initWithURL:myServiceURL];
+req.method = @"POST";
+req.contentType = @"application/json; encoding=utf-8";
+req.postData = @{@"user": @132, @"somethingElse": @[...]};
+[req sendWithCompletion:^(int status, id response, NSError *error) { ... }];
 ```
 
 # License
