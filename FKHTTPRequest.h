@@ -25,6 +25,7 @@
  */
 + (FKHTTPRequest*)requestWithURL:(NSURL*)url postData:(NSDictionary*)postData completion:(void (^)(int status, id response, NSError* error))completion;
 
+- (id)initWithURL:(NSURL*)url;
 - (void)sendWithCompletion:(void (^)(int status, id response, NSError* error))completion;
 - (void)setValue:(NSString*)value forHeader:(NSString*)header;
 - (id)jsonResponse;

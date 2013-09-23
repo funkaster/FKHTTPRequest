@@ -47,17 +47,25 @@
 
 - (void)sendWithCompletion:(void (^)(int status, id response, NSError* error))completion {
 	// first, prepare the data
+	if (_contentType) {
+		[self setValue:_contentType forHeader:@"Content-Type"];
+	}
 	if (_postData) {
-		NSMutableArray* values = [[NSMutableArray alloc] init];
-		[_postData enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-			NSString* str = [NSString stringWithFormat:@"%@=%@",
-							 [key urlEncodeUsingEncoding:NSASCIIStringEncoding],
-							 [obj urlEncodeUsingEncoding:NSASCIIStringEncoding]];
-			[values addObject:str];
-		}];
-		NSString* rawData = [values componentsJoinedByString:@"&"];
-		_request.HTTPBody = [NSData dataWithBytes:[rawData UTF8String] length:[rawData length]];
-		[_request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"content-type"];
+		NSRange rg = [_contentType rangeOfString:@"application/json"];
+		if (rg.location != NSNotFound) {
+			_request.HTTPBody = [NSJSONSerialization dataWithJSONObject:_postData options:0 error:nil];
+		} else {
+			NSMutableArray* values = [[NSMutableArray alloc] init];
+			[_postData enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+				NSString* str = [NSString stringWithFormat:@"%@=%@",
+								 [key urlEncodeUsingEncoding:NSASCIIStringEncoding],
+								 ([obj isKindOfClass:[NSString class]] ? [obj urlEncodeUsingEncoding:NSASCIIStringEncoding] : obj)];
+				[values addObject:str];
+			}];
+			NSString* rawData = [values componentsJoinedByString:@"&"];
+			_request.HTTPBody = [NSData dataWithBytes:[rawData UTF8String] length:[rawData length]];
+			[_request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"content-type"];
+		}
 	}
 	_request.HTTPMethod = _method;
 	if (completion) {
